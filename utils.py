@@ -6,11 +6,13 @@ def regions():
         "Long Island": [
             -75, -71, 40, 42
         ],
-        "Northeast": [-80, -66, 38, 47],
-        "Mid Atlantic": [-84, -72, 35, 46],
-        "Southeast": [-92, -78, 24, 37],
-        "South Central": [-106, -87, 26, 37],
-        "Great Lakes": [-92, -74, 38, 50]
+        "Northeast": [-80, -66, 40.5, 47.5],
+        "Mid Atlantic": [-84, -72, 36.5, 42.5],
+        "Southeast": [-95, -75, 25, 37],
+        "South Central": [-109, -88, 25.75, 37.25],
+        "Great Lakes": [-94.5, -74.5, 40, 50],
+        "Ohio Valley":[-90, -74, 39, 44.5],
+        # Not going to put all im lazy
 
     }
 

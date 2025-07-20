@@ -28,9 +28,9 @@ hour = 28
 # "2024-06-29 12:00
 H = Herbie("2025-07-19 18:00", model="hrrr", fxx=hour)
 href = H.xarray(":REFC:")
-
+fig = plt.figure(figsize=(10, 8))
 ax = plt.axes(projection=ccrs.PlateCarree())
-ax.set_extent(region_coords["Mid Atlantic"], ccrs.PlateCarree())
+ax.set_extent(region_coords["Ohio Valley"], ccrs.PlateCarree())
 
 states = cfeature.NaturalEarthFeature(
     category='cultural',
@@ -38,12 +38,15 @@ states = cfeature.NaturalEarthFeature(
     scale='10m',
     facecolor='none'
 )
-ax.add_feature(cfeature.BORDERS.with_scale('10m'), linewidth=0.6)
-ax.add_feature(cfeature.COASTLINE.with_scale('10m'), linewidth=0.4)
+ax.add_feature(cfeature.LAKES.with_scale('10m'), alpha=1, linewidth=0.3, zorder=1)
+
+ax.add_feature(cfeature.BORDERS.with_scale('10m'), linewidth=0.2)
+ax.add_feature(cfeature.COASTLINE.with_scale('10m'), linewidth=0.3)
 ax.add_feature(cfeature.LAND.with_scale('10m'), edgecolor='black')
 ax.add_feature(states, edgecolor='black', linewidth=0.4)
-ax.add_feature(cfeature.LAKES.with_scale('10m'), alpha=0.8)
-ax.add_feature(cfeature.RIVERS.with_scale('10m'), alpha=0.8, linewidth=0.3)
+ax.add_feature(cfeature.RIVERS.with_scale('10m'), alpha=1, linewidth=0.3)
+ax.add_feature(cfeature.OCEAN.with_scale('10m'), alpha=1, linewidth=0.3, zorder=2)
+
 vmin = -32
 norm = mpl.colors.Normalize(vmin=vmin, vmax=95)
 stops = [
@@ -89,6 +92,7 @@ p = ax.pcolormesh(
     href.latitude,
     sm,
     transform=pc,
+    zorder=10,
     **kw
 )
 print(cm_reflectivity().cbar_kwargs)
