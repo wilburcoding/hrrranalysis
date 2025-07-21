@@ -155,10 +155,10 @@ while True:
         plt.clf()
       except Exception as e:
         print(e)
-        time.sleep(1)
+        time.sleep(20)
 
 
-    time.sleep(5)
+    time.sleep(20)
     current_utc_time = datetime.now(pytz.utc)
       
   except Exception as e:
