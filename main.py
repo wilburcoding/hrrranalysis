@@ -1,18 +1,17 @@
-from herbie import Herbie
-from toolbox import EasyMap, pc
-from paint.radar2 import cm_reflectivity
-import pytz
-import metpy
-import os
-import time
-import sys
-import matplotlib as mpl
-from utils import regions
-import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
 from matplotlib.colors import LinearSegmentedColormap
+import cartopy.feature as cfeature
+import cartopy.crs as ccrs
+from datetime import datetime, timedelta
+import matplotlib.pyplot as plt
+from utils import regions
+import matplotlib as mpl
+import sys
+import time
+import os
+import metpy
+import pytz
+from herbie import Herbie
+print("hi")
 
 
 est = pytz.timezone('US/Eastern')
@@ -36,18 +35,19 @@ while True:
         print("All hours already downloaded")
         current_utc_time = datetime.now(pytz.utc)
       else:
-        hour = len(os.listdir("./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') + "/"))
+        hour = len(os.listdir(
+            "./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') + "/"))
         print("Starting at hour " + str(hour))
     else:
       print("Creating folder")
-      dirs = (["./data/" + str(x) +"/" for x in os.listdir("./data")])
+      dirs = (["./data/" + str(x) + "/" for x in os.listdir("./data")])
       if (len(dirs) == 10):
         oldest_directory = min(dirs, key=os.path.getmtime)
 
         os.rmdir(oldest_directory)
-      
+
       os.mkdir("./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00'))
-      sys.exit(1)
+    print("Starting downloading")
     while True:
       try:
         H = Herbie(current_utc_time.strftime(
@@ -64,15 +64,16 @@ while True:
             facecolor='none'
         )
         ax.add_feature(cfeature.LAKES.with_scale('10m'),
-                      alpha=1, linewidth=0.3, zorder=1)
+                       alpha=1, linewidth=0.3, zorder=1)
 
         ax.add_feature(cfeature.BORDERS.with_scale('10m'), linewidth=0.2)
         ax.add_feature(cfeature.COASTLINE.with_scale('10m'), linewidth=0.3)
         ax.add_feature(cfeature.LAND.with_scale('10m'), edgecolor='black')
         ax.add_feature(states, edgecolor='black', linewidth=0.4)
-        ax.add_feature(cfeature.RIVERS.with_scale('10m'), alpha=1, linewidth=0.3)
+        ax.add_feature(cfeature.RIVERS.with_scale(
+            '10m'), alpha=1, linewidth=0.3)
         ax.add_feature(cfeature.OCEAN.with_scale('10m'),
-                      alpha=1, linewidth=0.3, zorder=2)
+                       alpha=1, linewidth=0.3, zorder=2)
 
         vmin = -32
         norm = mpl.colors.Normalize(vmin=vmin, vmax=95)
@@ -102,27 +103,25 @@ while True:
 
         # Convert RGBA 0–255 → 0–1
         stops = [(pos, tuple(c/255 for c in color[:3]) + (color[3],))
-                for pos, color in stops]
+                 for pos, color in stops]
 
         # Build the colormap
         cmap = LinearSegmentedColormap.from_list("custom_css_cmap", stops)
 
-        kw = cm_reflectivity().cmap_kwargs
+        kw = {"norm": [], "cmap": []}
         kw["norm"] = norm
         kw["cmap"] = cmap
         kw["cmap"].set_under("white")
         sm = metpy.calc.smooth_gaussian(href.refc, 3)
 
-
         p = ax.pcolormesh(
             href.longitude,
             href.latitude,
             sm,
-            transform=pc,
+            transform=ccrs.PlateCarree(),
             zorder=10,
             **kw
         )
-        print(cm_reflectivity().cbar_kwargs)
         plt.colorbar(
             p,
             ax=ax,
@@ -145,8 +144,8 @@ while True:
             f"Hour: {str(hour)}\nInit: " + href.time.dt.strftime('%Hz - %d %b %Y').item(), loc="right")
         plt.tight_layout()
 
-
-        plt.savefig("./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') + "/" + str(hour) + ".png", bbox_inches='tight')
+        plt.savefig("./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') +
+                    "/" + str(hour) + ".png", bbox_inches='tight')
 
         if (hour == max_hours):
           break
@@ -155,16 +154,17 @@ while True:
         plt.clf()
       except Exception as e:
         print(e)
+        if ("No such file or directory" in str(e)):
+          os.mkdir("./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00'))
+
         time.sleep(20)
 
-
-    time.sleep(20)
+    time.sleep(40)
     current_utc_time = datetime.now(pytz.utc)
-      
+
   except Exception as e:
 
     print(e)
     print(current_utc_time.strftime('%Y-%m-%d %H:00'))
 
     current_utc_time = current_utc_time - timedelta(hours=1)
-
