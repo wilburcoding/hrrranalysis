@@ -62,7 +62,9 @@ while True:
         try:
           H = Herbie(current_utc_time.strftime(
               '%Y-%m-%d %H:00'), model="hrrr", fxx=hour)
-          ds = H.xarray(":REFC:|:TMP:2 m|:CAPE:surface")
+          ds = H.xarray(
+              ":REFC:|(:TCDC:entire atmosphere)|:TMP:2 m|:CAPE:surface")
+          print(ds)
           fig = plt.figure(figsize=(10, 8))
           ax = plt.axes(projection=ccrs.PlateCarree())
           ax.set_extent(region_coords["Long Island"], ccrs.PlateCarree())
@@ -74,17 +76,15 @@ while True:
               facecolor='none'
           )
           href = ds[0]
-          ax.add_feature(cfeature.LAKES.with_scale('10m'),
-                        alpha=1, linewidth=0.3, zorder=1)
-
-          ax.add_feature(cfeature.BORDERS.with_scale('10m'), linewidth=0.2)
-          ax.add_feature(cfeature.COASTLINE.with_scale('10m'), linewidth=0.3)
+          ax.add_feature(cfeature.LAKES.with_scale('10m'), alpha=1, linewidth=0.3, zorder=1)
+          ax.add_feature(cfeature.BORDERS.with_scale('10m'),
+                        linewidth=0.6, edgecolor="#9cc2ff", zorder=5)
+          ax.add_feature(cfeature.COASTLINE.with_scale(
+              '10m'), linewidth=0.6, edgecolor="#9cc2ff", zorder=5)
           ax.add_feature(cfeature.LAND.with_scale('10m'), edgecolor='black')
-          ax.add_feature(states, edgecolor='black', linewidth=0.4)
-          ax.add_feature(cfeature.RIVERS.with_scale(
-              '10m'), alpha=1, linewidth=0.3)
-          ax.add_feature(cfeature.OCEAN.with_scale('10m'),
-                        alpha=1, linewidth=0.3, zorder=2)
+          ax.add_feature(states, edgecolor='#9cc2ff', linewidth=0.7, zorder=5)
+          ax.add_feature(cfeature.RIVERS.with_scale('10m'), alpha=1, linewidth=0.3)
+          ax.add_feature(cfeature.OCEAN.with_scale('10m'), alpha=1, linewidth=0.3, zorder=2)
 
           vmin = -32
           norm = mpl.colors.Normalize(vmin=vmin, vmax=95)
@@ -124,24 +124,29 @@ while True:
           kw["cmap"] = cmap
           kw["cmap"].set_under("white")
           sm = metpy.calc.smooth_gaussian(href.refc, 3)
+          norm2 = mpl.colors.Normalize(vmin=0.1, vmax=100)
 
+          sm2 = metpy.calc.smooth_gaussian(href.tcc, 3)
+          cmap2 = LinearSegmentedColormap.from_list(
+              "white gradient", [(93/255, 93/255, 93/255, 1), (1, 1, 1, 1)], N=100)
+          print(href.tcc)
           p = ax.pcolormesh(
               href.longitude,
               href.latitude,
               sm,
-              transform=ccrs.PlateCarree(),
-              zorder=10,
+              transform=pc,
+              zorder=4,
               **kw
           )
-          plt.colorbar(
-              p,
-              ax=ax,
-              orientation="horizontal",
-              pad=0.01,
-              shrink=0.7,
-              aspect=25,
-              label="",
-              spacing="proportional"
+          p2 = ax.pcolormesh(
+              href.longitude,
+              href.latitude,
+              sm2,
+              transform=pc,
+              zorder=3,
+              norm=norm2,
+              cmap=cmap2,
+              shading='nearest'
           )
           ti = str(href.valid_time.dt.strftime("%Y-%m-%dT%H:%M:%S").item())
           valid = datetime.strptime(ti, "%Y-%m-%dT%H:%M:%S")

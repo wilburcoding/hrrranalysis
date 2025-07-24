@@ -3,13 +3,14 @@ from toolbox import EasyMap, pc
 from paint.radar2 import cm_reflectivity
 import pytz
 import metpy
+import numpy as np
 import matplotlib as mpl
-from utils import regions
+from tutil import regions
 import matplotlib.pyplot as plt
 from datetime import datetime
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.colors import LinearSegmentedColormap, ListedColormap
 
 
 est = pytz.timezone('US/Eastern')
@@ -27,10 +28,11 @@ hour = 28
 
 # "2024-06-29 12:00
 H = Herbie("2025-07-19 18:00", model="hrrr", fxx=hour)
-href = H.xarray(":REFC:")
+print(H.inventory(search=":TCDC:entire atmosphere:"))
+href = H.xarray(":REFC:|(:TCDC:entire atmosphere)")
 fig = plt.figure(figsize=(10, 8))
 ax = plt.axes(projection=ccrs.PlateCarree())
-ax.set_extent(region_coords["Ohio Valley"], ccrs.PlateCarree())
+ax.set_extent(region_coords["Long Island"], ccrs.PlateCarree())
 
 states = cfeature.NaturalEarthFeature(
     category='cultural',
@@ -40,15 +42,18 @@ states = cfeature.NaturalEarthFeature(
 )
 ax.add_feature(cfeature.LAKES.with_scale('10m'), alpha=1, linewidth=0.3, zorder=1)
 
-ax.add_feature(cfeature.BORDERS.with_scale('10m'), linewidth=0.2)
-ax.add_feature(cfeature.COASTLINE.with_scale('10m'), linewidth=0.3)
+ax.add_feature(cfeature.BORDERS.with_scale('10m'),
+               linewidth=0.6, edgecolor="#9cc2ff", zorder=5)
+ax.add_feature(cfeature.COASTLINE.with_scale(
+    '10m'), linewidth=0.6, edgecolor="#9cc2ff", zorder=5)
 ax.add_feature(cfeature.LAND.with_scale('10m'), edgecolor='black')
-ax.add_feature(states, edgecolor='black', linewidth=0.4)
+ax.add_feature(states, edgecolor='#9cc2ff', linewidth=0.7, zorder=5)
 ax.add_feature(cfeature.RIVERS.with_scale('10m'), alpha=1, linewidth=0.3)
 ax.add_feature(cfeature.OCEAN.with_scale('10m'), alpha=1, linewidth=0.3, zorder=2)
 
 vmin = -32
 norm = mpl.colors.Normalize(vmin=vmin, vmax=95)
+norm2 = mpl.colors.Normalize(vmin=0.1, vmax=100)
 stops = [
     (0.00, (0, 0, 0, 0)),
     (0.2913, (0, 0, 0, 0)),
@@ -85,15 +90,29 @@ kw["norm"] = norm
 kw["cmap"] = cmap
 kw["cmap"].set_under("white")
 sm = metpy.calc.smooth_gaussian(href.refc, 3)
+sm2 = metpy.calc.smooth_gaussian(href.tcc, 3)
 
-
+N = 256
+cmap2 = LinearSegmentedColormap.from_list(
+    "white gradient", [(93/255,93/255, 93/255, 1), (1, 1, 1, 1)], N=100)
+print(href.tcc)
 p = ax.pcolormesh(
     href.longitude,
     href.latitude,
     sm,
     transform=pc,
-    zorder=10,
+    zorder=4,
     **kw
+)
+p2 = ax.pcolormesh(
+    href.longitude,
+    href.latitude,
+    sm2,
+    transform=pc,
+    zorder=3,
+    norm=norm2,
+    cmap=cmap2,
+    shading='nearest'
 )
 print(cm_reflectivity().cbar_kwargs)
 plt.colorbar(
