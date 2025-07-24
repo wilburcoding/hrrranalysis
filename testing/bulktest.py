@@ -63,7 +63,8 @@ while True:
           H = Herbie(current_utc_time.strftime(
               '%Y-%m-%d %H:00'), model="hrrr", fxx=hour)
           ds = H.xarray(
-              ":REFC:|(:TCDC:entire atmosphere)|:TMP:2 m|:CAPE:surface")
+              ":REFC:|(:TCDC:entire atmosphere)|:TMP:2 m|:CAPE:surface|:GUST:surface")
+          print(ds)
           fig = plt.figure(figsize=(10, 8))
           ax = plt.axes(projection=ccrs.PlateCarree())
           ax.set_extent(region_coords["Long Island"], ccrs.PlateCarree())
@@ -151,7 +152,7 @@ while True:
           valid = datetime.strptime(ti, "%Y-%m-%dT%H:%M:%S")
           valid = pytz.utc.localize(valid)
           ax.set_title(
-              f"{href.model.upper()}: {href.refc.GRIB_name}\nValid: {valid.astimezone(est).strftime('%I:%M %p EST - %d %b %Y')}",
+              f"{href.model.upper()}: Maximum Reflectivity (dBZ)\nValid: {valid.astimezone(est).strftime('%I:%M %p EST - %d %b %Y')}",
               loc="left",
           )
 
@@ -266,7 +267,7 @@ while True:
           valid = datetime.strptime(ti, "%Y-%m-%dT%H:%M:%S")
           valid = pytz.utc.localize(valid)
           ax.set_title(
-              f"{href.model.upper()}: {href.t2m.GRIB_name}\nValid: {valid.astimezone(est).strftime('%I:%M %p EST - %d %b %Y')}",
+              f"{href.model.upper()}: 2 Meter Temperature (F)\nValid: {valid.astimezone(est).strftime('%I:%M %p EST - %d %b %Y')}",
               loc="left",
           )
 
@@ -278,7 +279,11 @@ while True:
                       "/t2m/" + str(hour) + ".png", bbox_inches='tight')
           plt.clf()
 
-          # SURFACE BASED CAPE
+
+
+
+
+          # SURFACE BASED CAPE + GUST
           href = ds[2]
           fig = plt.figure(figsize=(10, 8))
           ax = plt.axes(projection=ccrs.PlateCarree())
@@ -364,7 +369,7 @@ while True:
           valid = datetime.strptime(ti, "%Y-%m-%dT%H:%M:%S")
           valid = pytz.utc.localize(valid)
           ax.set_title(
-              f"{href.model.upper()}: {href.cape.GRIB_name}\nValid: {valid.astimezone(est).strftime('%I:%M %p EST - %d %b %Y')}",
+              f"{href.model.upper()}: Surface Based CAPE (J/kg)\nValid: {valid.astimezone(est).strftime('%I:%M %p EST - %d %b %Y')}",
               loc="left",
           )
 
@@ -374,6 +379,94 @@ while True:
 
           plt.savefig("./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') +
                       "/sbcape/" + str(hour) + ".png", bbox_inches='tight')
+          plt.clf()
+          fig = plt.figure(figsize=(10, 8))
+          ax = plt.axes(projection=ccrs.PlateCarree())
+          ax.set_extent(region_coords["Long Island"], ccrs.PlateCarree())
+
+          states = cfeature.NaturalEarthFeature(
+              category='cultural',
+              name='admin_1_states_provinces',
+              scale='10m',
+              facecolor='none'
+          )
+          colors = np.array(
+              [
+                  "#103f78",
+                  "#225ea8",
+                  "#1d91c0",
+                  "#41b6c4",
+                  "#7fcdbb",
+                  "#b4d79e",
+                  "#dfff9e",
+                  "#ffffa6",
+                  "#ffe873",
+                  "#ffc400",
+                  "#ffaa00",
+                  "#ff5900",
+                  "#ff0000",
+                  "#a80000",
+                  "#6e0000",
+                  "#ffbee8",
+                  "#ff73df",
+              ]
+          )
+          bounds = np.array(
+              [0.0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 100, 120, 140, 160]
+          )
+          linear_cmap = LinearSegmentedColormap.from_list("nws.wind", colors)
+          mpl.colormaps.register(cmap=linear_cmap, force=True)
+          norm2 = mpl.colors.BoundaryNorm(bounds, linear_cmap.N)
+
+
+          ax.add_feature(cfeature.LAND.with_scale('10m'), edgecolor='black',
+                        zorder=1, facecolor="#282f40")
+
+          ax.add_feature(states, edgecolor='black', linewidth=0.4, zorder=4)
+          ax.add_feature(cfeature.RIVERS.with_scale('10m'), alpha=1, linewidth=0.3)
+          ax.add_feature(cfeature.OCEAN.with_scale('10m'), facecolor="#282f40",
+                        alpha=0.4, linewidth=0.3, zorder=2)
+          ax.add_feature(cfeature.LAKES.with_scale('10m'),
+                        alpha=1, linewidth=0.3, zorder=2)
+          ax.add_feature(cfeature.BORDERS.with_scale('10m'), linewidth=0.2, zorder=4)
+          ax.add_feature(cfeature.COASTLINE.with_scale('10m'), linewidth=0.3, zorder=4)
+
+
+          sm = metpy.calc.smooth_gaussian(href.gust*2.23694, 5)
+
+
+          p = ax.pcolormesh(
+              href.longitude,
+              href.latitude,
+              sm,
+              zorder=3,
+              cmap="nws.wind",
+              norm=norm2
+          )
+          plt.colorbar(
+              p,
+              ax=ax,
+              orientation="horizontal",
+              pad=0.01,
+              shrink=0.7,
+              aspect=25,
+              label="",
+              spacing="proportional"
+          )
+          ti = str(href.valid_time.dt.strftime("%Y-%m-%dT%H:%M:%S").item())
+          valid = datetime.strptime(ti, "%Y-%m-%dT%H:%M:%S")
+          valid = pytz.utc.localize(valid)
+          ax.set_title(
+              f"{href.model.upper()}: Surface Wind Gusts (mph)\nValid: {valid.astimezone(est).strftime('%I:%M %p EST - %d %b %Y')}",
+              loc="left",
+          )
+
+          ax.set_title(
+              f"Hour: {str(hour)}\nInit: " + href.time.dt.strftime('%Hz - %d %b %Y').item(), loc="right")
+          plt.tight_layout()
+
+          plt.savefig("./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') +
+                      "/gust/" + str(hour) + ".png", bbox_inches='tight')
           plt.clf()
           if (hour == max_hours):
             break
@@ -390,7 +483,7 @@ while True:
             os.mkdir(
                 "./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') + "/sbcape")
             os.mkdir(
-                "./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') + "/sbcape")
+                "./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') + "/gust")
 
           time.sleep(20)
 
