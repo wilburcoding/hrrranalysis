@@ -8,13 +8,11 @@ import matplotlib as mpl
 import sys
 import time
 import os
-from toolbox import EasyMap, pc
 import shutil
 import metpy
 import numpy as np
 import pytz
 from herbie import Herbie
-print("hi")
 
 
 est = pytz.timezone('US/Eastern')
@@ -55,6 +53,8 @@ while True:
       os.mkdir("./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') + "/t2m")
       os.mkdir("./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') + "/refc")
       os.mkdir("./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') + "/sbcape")
+      os.mkdir("./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') + "/gust")
+
       contin = True
     if (contin == True):
       print("Starting downloading")
@@ -64,7 +64,6 @@ while True:
               '%Y-%m-%d %H:00'), model="hrrr", fxx=hour)
           ds = H.xarray(
               ":REFC:|(:TCDC:entire atmosphere)|:TMP:2 m|:CAPE:surface")
-          print(ds)
           fig = plt.figure(figsize=(10, 8))
           ax = plt.axes(projection=ccrs.PlateCarree())
           ax.set_extent(region_coords["Long Island"], ccrs.PlateCarree())
@@ -76,15 +75,18 @@ while True:
               facecolor='none'
           )
           href = ds[0]
-          ax.add_feature(cfeature.LAKES.with_scale('10m'), alpha=1, linewidth=0.3, zorder=1)
+          ax.add_feature(cfeature.LAKES.with_scale('10m'),
+                         alpha=1, linewidth=0.3, zorder=1)
           ax.add_feature(cfeature.BORDERS.with_scale('10m'),
-                        linewidth=0.6, edgecolor="#9cc2ff", zorder=5)
+                         linewidth=0.6, edgecolor="#9cc2ff", zorder=5)
           ax.add_feature(cfeature.COASTLINE.with_scale(
               '10m'), linewidth=0.6, edgecolor="#9cc2ff", zorder=5)
           ax.add_feature(cfeature.LAND.with_scale('10m'), edgecolor='black')
           ax.add_feature(states, edgecolor='#9cc2ff', linewidth=0.7, zorder=5)
-          ax.add_feature(cfeature.RIVERS.with_scale('10m'), alpha=1, linewidth=0.3)
-          ax.add_feature(cfeature.OCEAN.with_scale('10m'), alpha=1, linewidth=0.3, zorder=2)
+          ax.add_feature(cfeature.RIVERS.with_scale(
+              '10m'), alpha=1, linewidth=0.3)
+          ax.add_feature(cfeature.OCEAN.with_scale('10m'),
+                         alpha=1, linewidth=0.3, zorder=2)
 
           vmin = -32
           norm = mpl.colors.Normalize(vmin=vmin, vmax=95)
@@ -114,7 +116,7 @@ while True:
 
           # Convert RGBA 0–255 → 0–1
           stops = [(pos, tuple(c/255 for c in color[:3]) + (color[3],))
-                  for pos, color in stops]
+                   for pos, color in stops]
 
           # Build the colormap
           cmap = LinearSegmentedColormap.from_list("custom_css_cmap", stops)
@@ -129,12 +131,10 @@ while True:
           sm2 = metpy.calc.smooth_gaussian(href.tcc, 3)
           cmap2 = LinearSegmentedColormap.from_list(
               "white gradient", [(93/255, 93/255, 93/255, 1), (1, 1, 1, 1)], N=100)
-          print(href.tcc)
           p = ax.pcolormesh(
               href.longitude,
               href.latitude,
               sm,
-              transform=pc,
               zorder=4,
               **kw
           )
@@ -142,7 +142,6 @@ while True:
               href.longitude,
               href.latitude,
               sm2,
-              transform=pc,
               zorder=3,
               norm=norm2,
               cmap=cmap2,
@@ -164,11 +163,7 @@ while True:
                       "/refc/" + str(hour) + ".png", bbox_inches='tight')
           plt.clf()
 
-
-
           # TEMPERATURE (2 meter)
-
-
 
           href = ds[1]
 
@@ -231,24 +226,25 @@ while True:
           mpl.colormaps.register(cmap=linear_cmap, force=True)
           norm = Normalize(bounds.min(), bounds.max())
 
-
           ax.add_feature(cfeature.LAND.with_scale('10m'), edgecolor='black',
-                        zorder=1, facecolor="#282f40")
+                         zorder=1, facecolor="#282f40")
 
           ax.add_feature(states, edgecolor='black', linewidth=0.4, zorder=4)
-          ax.add_feature(cfeature.RIVERS.with_scale('10m'), alpha=1, linewidth=0.3)
+          ax.add_feature(cfeature.RIVERS.with_scale(
+              '10m'), alpha=1, linewidth=0.3)
           ax.add_feature(cfeature.OCEAN.with_scale('10m'), facecolor="#282f40",
-                        alpha=0.4, linewidth=0.3, zorder=2)
+                         alpha=0.4, linewidth=0.3, zorder=2)
           ax.add_feature(cfeature.LAKES.with_scale('10m'),
-                        alpha=1, linewidth=0.3, zorder=2)
-          ax.add_feature(cfeature.BORDERS.with_scale('10m'), linewidth=0.2, zorder=4)
-          ax.add_feature(cfeature.COASTLINE.with_scale('10m'), linewidth=0.3, zorder=4)
+                         alpha=1, linewidth=0.3, zorder=2)
+          ax.add_feature(cfeature.BORDERS.with_scale(
+              '10m'), linewidth=0.2, zorder=4)
+          ax.add_feature(cfeature.COASTLINE.with_scale(
+              '10m'), linewidth=0.3, zorder=4)
           sm = metpy.calc.smooth_gaussian((href.t2m-273)*(9/5) + 32, 5)
           p = ax.contour(
               href.longitude,
               href.latitude,
               sm,
-              transform=pc,
               zorder=3,
               levels=np.linspace(-65, 125, 39),
               cmap="nws.temp",
@@ -282,8 +278,6 @@ while True:
                       "/t2m/" + str(hour) + ".png", bbox_inches='tight')
           plt.clf()
 
-
-
           # SURFACE BASED CAPE
           href = ds[2]
           fig = plt.figure(figsize=(10, 8))
@@ -297,17 +291,20 @@ while True:
               facecolor='none'
           )
 
-
-          ax.add_feature(cfeature.LAND.with_scale('10m'), edgecolor='black', zorder=1)
+          ax.add_feature(cfeature.LAND.with_scale(
+              '10m'), edgecolor='black', zorder=1)
 
           ax.add_feature(states, edgecolor='black', linewidth=0.4, zorder=4)
-          ax.add_feature(cfeature.RIVERS.with_scale('10m'), alpha=1, linewidth=0.3)
+          ax.add_feature(cfeature.RIVERS.with_scale(
+              '10m'), alpha=1, linewidth=0.3)
           ax.add_feature(cfeature.OCEAN.with_scale('10m'),
-                        alpha=1, linewidth=0.3, zorder=2)
+                         alpha=1, linewidth=0.3, zorder=2)
           ax.add_feature(cfeature.LAKES.with_scale('10m'),
-                        alpha=1, linewidth=0.3, zorder=2)
-          ax.add_feature(cfeature.BORDERS.with_scale('10m'), linewidth=0.2, zorder=4)
-          ax.add_feature(cfeature.COASTLINE.with_scale('10m'), linewidth=0.3, zorder=4)
+                         alpha=1, linewidth=0.3, zorder=2)
+          ax.add_feature(cfeature.BORDERS.with_scale(
+              '10m'), linewidth=0.2, zorder=4)
+          ax.add_feature(cfeature.COASTLINE.with_scale(
+              '10m'), linewidth=0.3, zorder=4)
 
           vmin = 100
           norm = mpl.colors.Normalize(vmin=vmin, vmax=10000)
@@ -345,12 +342,10 @@ while True:
           cmap.set_under("white", alpha=0)
           sm = metpy.calc.smooth_gaussian(href.cape, 3)
 
-
           p = ax.pcolormesh(
               href.longitude,
               href.latitude,
               sm,
-              transform=pc,
               zorder=3,
               cmap=cmap,
               norm=norm,
@@ -388,9 +383,14 @@ while True:
           print(e)
           if ("No such file or directory" in str(e)):
             os.mkdir("./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00'))
-            os.mkdir("./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') + "/t2m")
-            os.mkdir("./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') + "/refc")
-            os.mkdir("./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') + "/sbcape")
+            os.mkdir(
+                "./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') + "/t2m")
+            os.mkdir(
+                "./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') + "/refc")
+            os.mkdir(
+                "./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') + "/sbcape")
+            os.mkdir(
+                "./data/" + current_utc_time.strftime('%Y-%m-%d-%H-00') + "/sbcape")
 
           time.sleep(20)
 
