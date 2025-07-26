@@ -20,7 +20,7 @@ hour = 0
 
 # "2024-06-29 12:00
 H = Herbie("2022-12-24 12:00", model="hrrr", fxx=hour)
-href = H.xarray(":TMP:2 m")
+href = H.xarray(":RH:2 m")
 fig = plt.figure(figsize=(10, 8))
 ax = plt.axes(projection=ccrs.PlateCarree())
 ax.set_extent(region_coords["Long Island"], ccrs.PlateCarree())
@@ -33,50 +33,25 @@ states = cfeature.NaturalEarthFeature(
 )
 colors = np.array(
     [
-        "#91003f",
-        "#ce1256",
-        "#e7298a",
-        "#df65b0",
-        "#ff73df",
-        "#ffbee8",
-        "#ffffff",
-        "#dadaeb",
-        "#bcbddc",
-        "#9e9ac8",
-        "#756bb1",
-        "#54278f",
-        "#0d007d",
-        "#0d3d9c",
-        "#0066c2",
-        "#299eff",
-        "#4ac7ff",
-        "#73d7ff",
-        "#adffff",
-        "#30cfc2",
-        "#009996",
-        "#125757",
-        "#066d2c",
-        "#31a354",
-        "#74c476",
-        "#a1d99b",
-        "#d3ffbe",
-        "#ffffb3",
-        "#ffeda0",
-        "#fed176",
-        "#feae2a",
-        "#fd8d3c",
-        "#fc4e2a",
-        "#e31a1c",
-        "#b10026",
-        "#800026",
-        "#590042",
-        "#280028",
+        "#910022",
+        "#a61122",
+        "#bd2e24",
+        "#d44e33",
+        "#e36d42",
+        "#fa8f43",
+        "#fcad58",
+        "#fed884",
+        "#fff2aa",
+        "#e6f49d",
+        "#bce378",
+        "#71b55c",
+        "#26914b",
+        "#00572e",
     ]
 )
-# NWS bounds in Fahrenheit
-bounds = np.linspace(-65, 125, len(colors) + 1)
+bounds = np.array([0, 5, 10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80, 90, 100])
 # Convert to Celsius (approximate)
-linear_cmap = LinearSegmentedColormap.from_list("nws.temp", colors)
+linear_cmap = LinearSegmentedColormap.from_list("nws.rh", colors)
 mpl.colormaps.register(cmap=linear_cmap, force=True)
 norm = Normalize(bounds.min(), bounds.max())
 
@@ -94,7 +69,7 @@ ax.add_feature(cfeature.BORDERS.with_scale('10m'), linewidth=0.2, zorder=4)
 ax.add_feature(cfeature.COASTLINE.with_scale('10m'), linewidth=0.3, zorder=4)
 
 
-sm = metpy.calc.smooth_gaussian((href.t2m-273)*(9/5) + 32, 5)
+sm = metpy.calc.smooth_gaussian(href.r2, 5)
 
 
 p = ax.contour(
@@ -103,8 +78,8 @@ p = ax.contour(
     sm,
     transform=pc,
     zorder=3,
-    levels=np.linspace(-65, 125, 39),
-    cmap="nws.temp",
+    levels=np.linspace(0,100, 21),
+    cmap="nws.rh",
     norm=norm
 )
 plt.clabel(p, inline=1, fontsize=10)
@@ -122,7 +97,7 @@ ti = str(href.valid_time.dt.strftime("%Y-%m-%dT%H:%M:%S").item())
 valid = datetime.strptime(ti, "%Y-%m-%dT%H:%M:%S")
 valid = pytz.utc.localize(valid)
 ax.set_title(
-    f"{href.model.upper()}: {href.t2m.GRIB_name}\nValid: {valid.astimezone(est).strftime('%I:%M %p EST - %d %b %Y')}",
+    f"{href.model.upper()}: 2 Meter Relative Humidity (%)\nValid: {valid.astimezone(est).strftime('%I:%M %p EST - %d %b %Y')}",
     loc="left",
 )
 
