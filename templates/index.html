@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>HRRRAnalysis</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/style.css') }}">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+</head>
+
+<body style="display:flex;flex-direction: row;align-items: center;justify-content: center;">
+  <div style="width:90vw;height:100vh;background-color: rgb(240, 244, 255);display:flex;flex-direction: column;">
+    <div style="width:100%;height:90vh;background-color: white;display:flex;align-items: center;justify-content: center;flex-direction: row;">
+      <div style="width:80%;height:90vh;background-color: white;margin:0;display:flex;align-items: center;justify-content: center;">
+        <img src="" style="width:100%;height:100%;margin:0;padding:0;object-fit: contain;" id="im">
+        <!-- /img?run=2024-08-11,20-00&hour=1&field=cape -->
+      </div>
+      <div style="width:20%;height:90vh;background-color:rgb(240, 244, 255);margin:0;padding:5px;">
+        <h1>HRRRAnalysis</h1>
+        <h3>A simple web application for viewing HRRR model runs</h3>
+        <select id="runs">
+
+        </select>
+        <select id="fields" style="display:none">
+          <option value="refc"> Reflectivity</option>
+          <option value="sbcape">Surface Based CAPE</option>
+          <option value="ptype">Precipitation Type</option>
+          <option value="t2m">2 Meter Temperature</option>
+          <option value="r2m">2 Meter Relative Humidity</option>
+          <option value="gust">Surface Wind Gust</option>
+
+        </select>
+      </div>
+
+    </div>
+    <div style="width:80%;height:10vh;background-color: rgb(240, 244, 255);display: flex;flex-direction: row;align-items: center;justify-content: center;">
+      <input type="range" min="0" max="0" value="0" class="slider">
+      <p id="sinfo"></p>
+
+    </div>
+
+  </div>
+    <script src="{{ url_for('static',filename='scripts/script.js') }}"></script>
+
+
+
+
+
+</body>
+
+</html>
