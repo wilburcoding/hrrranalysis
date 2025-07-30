@@ -17,7 +17,7 @@ est = pytz.timezone('US/Eastern')
 
 region_coords = regions()
 now_time = datetime.now()
-for hour in range(49):
+for hour in range(18):
 
     def func(sn, ice, fr, rain, prate):
         threshold = 0.0005
@@ -83,10 +83,8 @@ for hour in range(49):
     cmap.set_under(color=(0, 0, 0, 0))
     norm = mpl.colors.Normalize(vmin=0.001, vmax=8)
     # "2024-06-29 12:00
-    H = Herbie("2016-01-23 0:00", model="hrrr", fxx=hour)
+    H = Herbie("2018-05-15 12:00", model="hrrr", fxx=hour)
     href = H.xarray(":CSNOW:|:CICEP:|:CFRZR:|:CRAIN:|:PRATE:")
-    print(href)
-    print(href["csnow"])
     mhref = xr.apply_ufunc(
         func,
         href.csnow, href.cicep, href.cfrzr, href.crain, metpy.calc.smooth_gaussian(
@@ -96,7 +94,7 @@ for hour in range(49):
 
     fig = plt.figure(figsize=(10, 8))
     ax = plt.axes(projection=ccrs.PlateCarree())
-    ax.set_extent(region_coords["Long Island"], ccrs.PlateCarree())
+    ax.set_extent(region_coords["Northeast"], ccrs.PlateCarree())
 
     states = cfeature.NaturalEarthFeature(
         category='cultural',

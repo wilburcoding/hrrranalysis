@@ -17,13 +17,15 @@ est = pytz.timezone('US/Eastern')
 
 region_coords = regions()
 now_time = datetime.now()
-for hour in range(12,16):
+for hour in range(1):
 
-    H = Herbie("2025-07-28 18:00", model="hrrr", fxx=hour)
-    href = H.xarray(":REFC:")
+    H = Herbie("2024-08-10 12:00", model="hrrr", fxx=hour)
+
+    href = H.xarray(":REFC:|(:TCDC:entire atmosphere:anl)")
+    print(href)
     fig = plt.figure(figsize=(10, 8))
     ax = plt.axes(projection=ccrs.PlateCarree())
-    ax.set_extent(region_coords["Northern Great Plains"], ccrs.PlateCarree())
+    ax.set_extent(region_coords["Washington"], ccrs.PlateCarree())
 
     states = cfeature.NaturalEarthFeature(
         category='cultural',
@@ -31,20 +33,20 @@ for hour in range(12,16):
         scale='10m',
         facecolor='none'
     )
+    
     ax.add_feature(cfeature.LAKES.with_scale('10m'),
-                   alpha=1, linewidth=0.3, zorder=1)
-
-    ax.add_feature(cfeature.BORDERS.with_scale('10m'), linewidth=0.2)
-    ax.add_feature(cfeature.COASTLINE.with_scale('10m'), linewidth=0.3)
-    ax.add_feature(cfeature.LAND.with_scale('10m'), edgecolor='black')
-    ax.add_feature(states, edgecolor='black', linewidth=0.4)
-    ax.add_feature(cfeature.RIVERS.with_scale(
-        '10m'), alpha=1, linewidth=0.3)
-    ax.add_feature(cfeature.OCEAN.with_scale('10m'),
-                   alpha=1, linewidth=0.3, zorder=2)
+                   alpha=1, facecolor="none", zorder=5, linewidth=0.4, edgecolor="#9cc2ff")
+    ax.add_feature(cfeature.BORDERS.with_scale('10m'),
+                linewidth=0.6, edgecolor="#9cc2ff", zorder=5)
+    ax.add_feature(cfeature.COASTLINE.with_scale(
+        '10m'), linewidth=0.6, edgecolor="#9cc2ff", zorder=5)
+    ax.add_feature(states, edgecolor='#9cc2ff', linewidth=0.7, zorder=5)
+    
+    
 
     vmin = -32
     norm = mpl.colors.Normalize(vmin=vmin, vmax=95)
+    norm2 = mpl.colors.Normalize(vmin=0.1, vmax=100)
     stops = [
         (0.00, (0, 0, 0, 0)),
         (0.2913, (0, 0, 0, 0)),
@@ -71,24 +73,38 @@ for hour in range(12,16):
 
     # Convert RGBA 0–255 → 0–1
     stops = [(pos, tuple(c/255 for c in color[:3]) + (color[3],))
-             for pos, color in stops]
+            for pos, color in stops]
 
     # Build the colormap
     cmap = LinearSegmentedColormap.from_list("custom_css_cmap", stops)
+    kw = {}
 
-    kw = {"norm": [], "cmap": []}
     kw["norm"] = norm
     kw["cmap"] = cmap
     kw["cmap"].set_under("white")
     sm = metpy.calc.smooth_gaussian(href.refc, 3)
+    sm2 = metpy.calc.smooth_gaussian(href.tcc, 3)
 
+    N = 256
+    cmap2 = LinearSegmentedColormap.from_list(
+        "white gradient", [(93/255, 93/255, 93/255, 1), (1, 1, 1, 1)], N=100)
     p = ax.pcolormesh(
         href.longitude,
         href.latitude,
         sm,
-        transform=ccrs.PlateCarree(),
-        zorder=10,
+        transform=pc,
+        zorder=4,
         **kw
+    )
+    p2 = ax.pcolormesh(
+        href.longitude,
+        href.latitude,
+        sm2,
+        transform=pc,
+        zorder=3,
+        norm=norm2,
+        cmap=cmap2,
+        shading='nearest'
     )
     plt.colorbar(
         p,
@@ -111,6 +127,7 @@ for hour in range(12,16):
     ax.set_title(
         f"Hour: {str(hour)}\nInit: " + href.time.dt.strftime('%Hz - %d %b %Y').item(), loc="right")
     plt.tight_layout()
-
-    plt.savefig("testoutput/" + str(hour+1) + ".png", bbox_inches='tight')
+    for region in ["Maine"]:
+        ax.set_extent(region_coords[region], ccrs.PlateCarree())
+        plt.savefig("testoutput/" + str(hour+1) + region + ".png", bbox_inches='tight')
     print(datetime.now() - now_time)

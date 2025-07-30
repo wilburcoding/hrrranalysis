@@ -17,13 +17,13 @@ est = pytz.timezone('US/Eastern')
 
 region_coords = regions()
 now_time = datetime.now()
-for hour in range(17):
+for hour in range(18):
 
-    H = Herbie("2025-07-28 18:00", model="hrrr", fxx=hour)
+    H = Herbie("2020-08-10 06:00", model="hrrr", fxx=hour)
     href = H.xarray(":GUST:surface")
     fig = plt.figure(figsize=(10, 8))
     ax = plt.axes(projection=ccrs.PlateCarree())
-    ax.set_extent(region_coords["Long Island"], ccrs.PlateCarree())
+    ax.set_extent(region_coords["Northeast"], ccrs.PlateCarree())
 
     states = cfeature.NaturalEarthFeature(
         category='cultural',

@@ -28,7 +28,6 @@ hour = 28
 
 # "2024-06-29 12:00
 H = Herbie("2025-07-19 18:00", model="hrrr", fxx=hour)
-print(H.inventory(search=":TCDC:entire atmosphere:"))
 href = H.xarray(":REFC:|(:TCDC:entire atmosphere)")
 fig = plt.figure(figsize=(10, 8))
 ax = plt.axes(projection=ccrs.PlateCarree())

@@ -12,7 +12,8 @@ def regions():
         "South Central": [-109, -88, 25.75, 37.25],
         "Great Lakes": [-94.5, -74.5, 40, 50],
         "Ohio Valley":[-90, -74, 39, 44.5],
-        "Northern Great Plains" :[-109, -93, 42, 50],
+        "Northern Plains" :[-109, -93, 42, 50],
+        "Central Plains":[-109, -93, 35, 43]
         # Not going to put all im lazy
 
     }
