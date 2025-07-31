@@ -25,7 +25,7 @@ for hour in range(1):
     print(href)
     fig = plt.figure(figsize=(10, 8))
     ax = plt.axes(projection=ccrs.PlateCarree())
-    ax.set_extent(region_coords["Washington"], ccrs.PlateCarree())
+    ax.set_extent([-74.76189,-71.78799, 40.496105, 41.7138137], ccrs.PlateCarree())
 
     states = cfeature.NaturalEarthFeature(
         category='cultural',
@@ -127,7 +127,5 @@ for hour in range(1):
     ax.set_title(
         f"Hour: {str(hour)}\nInit: " + href.time.dt.strftime('%Hz - %d %b %Y').item(), loc="right")
     plt.tight_layout()
-    for region in ["Maine"]:
-        ax.set_extent(region_coords[region], ccrs.PlateCarree())
-        plt.savefig("testoutput/" + str(hour+1) + region + ".png", bbox_inches='tight')
+    plt.savefig("testoutput/" + str(hour+1) + ".png", bbox_inches='tight')
     print(datetime.now() - now_time)

@@ -11,7 +11,7 @@ Dodge City	Kansas	DDC	102 Airport Road Dodge City, KS, 67801
 Goodland	Kansas	GLD	920 Armory Road Goodland, KS 67735
 Topeka	Kansas	TOP	1116 NE Strait Avenue Topeka, KS 66616
 Wichita	Kansas	ICT	2142 S. Tyler Road Wichita, KS 67209
-Jackson	Kentucky	JKL	1329 Airport Road Jackson, KY 41339
+Jackson	Kentucky  JKL	1329 Airport Road Jackson, KY 41339
 Louisville	Kentucky	LMK	6201 Theiler Lane Louisville, KY 40229
 Paducah	Kentucky	PAH	8250 Kentucky Highway 3520 West Paducah, KY 42086
 Detroit/Pontiac	Michigan	DTX	9200 White Lake Road White Lake, MI 48386
@@ -48,12 +48,12 @@ Newport/Morehead City	North Carolina	MHX	533 Roberts Rd, Newport, NC 28570
 Raleigh	North Carolina	RAH	1005 Capability Dr #300, Raleigh, NC 27606
 Wilmington	North Carolina	ILM	2015 Gardner Dr, Wilmington, NC 28405
 Cleveland	Ohio	CLE	925 Keynote Circle Suite 314, Brooklyn Heights, OH 44131
-Wilmington (de facto “Cincinnati/Wilmington”)	Ohio	ILN	1901 OH-134, Wilmington, OH 45177
+Wilmington	Ohio	ILN	1901 OH-134, Wilmington, OH 45177
 Pittsburgh	Pennsylvania	PBZ	192 Shafer Rd, Coraopolis, PA 15108
 State College	Pennsylvania	CTP	328 Innovation Blvd, State College, PA 16803
 Charleston	South Carolina	CHS	5777 S Aviation Ave, North Charleston, SC 29406
 Columbia	South Carolina	CAE	2909 Aviation Way West, Columbia, SC 29170
-Greenville-Spartanburg	South Carolina	GSP	1549 GSP Dr, Greer, SC 29651
+Greenville-Spartanburg	South Carolina	GSP	1549 Dr, Greer, SC 29651
 Burlington	Vermont	BTV	1200 Airport Dr, South Burlington, VT 05403
 Baltimore/Washington	Virginia	LWX	43858 Weather Service Road, Sterling, VA 20166
 Blacksburg/Roanoke	Virginia	RNK	1750 Forecast Dr, Blacksburg, VA 24060
@@ -92,7 +92,7 @@ Lubbock	Texas	LUB	2579 S Loop 289 #100, Lubbock, TX 79423
 Midland/Odessa	Texas	MAF	2500 Challenger Dr, Midland, TX 79706
 San Angelo	Texas	SJT	7654 Knickerbocker Rd, San Angelo, TX 76904
 Flagstaff	Arizona	FGZ	Building 49 Hughes Ave, Bellemont, AZ 86015
-Phoenix	Arizona	PSR	2727 E Washington St, NWS PAB 1TA, Phoenix, AZ 85034[11]
+Phoenix	Arizona	PSR	2727 E Washington St 1TA, Phoenix, AZ 85034[11]
 Tucson	Arizona	TWC	520 N Park Ave #304, Tucson, AZ 85719
 Eureka	California	EKA	300 Startare Dr, Eureka, CA 95501
 Los Angeles/Oxnard	California	LOX	520 N Elevar St, Oxnard, CA 93030
@@ -113,5 +113,5 @@ Medford	Oregon	MFR	4003 Cirrus Dr, Medford, OR 97504
 Pendleton	Oregon	PDT	2001 NW 56th St, Pendleton, OR 97801
 Portland	Oregon	PQR	5241 NE 122nd Ave, Portland, OR 97230
 Salt Lake City	Utah	SLC	2242 W North Temple, Salt Lake City, UT 84116
-Seattle	Washington	SEW	7600 Sand Point Way NE, Seattle, WA 98115 [12]
+Seattle	Washington	SEW	7600 Sand Point Way NE, Seattle, WA 98115
 Spokane	Washington	OTX	2601 N Rambo Rd, Spokane, WA 99224
